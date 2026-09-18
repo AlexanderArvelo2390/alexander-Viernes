@@ -33,15 +33,6 @@
     return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
   }
 
-  const reserva = prendas.map((p, i) => ({
-    id: 1000 + i,
-    title: p[0],
-    category: p[1],
-    price: p[3],
-    description: p[5],
-    image: dibujo(p[2], p[4]),
-  }));
-
   function leerCarrito() {
     try {
       const guardado = JSON.parse(localStorage.getItem(CLAVE));
@@ -87,7 +78,7 @@
         image: p.image,
       }));
     } catch (e) {
-      productos = reserva;
+      console.log(productos);
       avisar(
         "No se pudo conectar con la API. Se muestra el catálogo local.",
         "error",
