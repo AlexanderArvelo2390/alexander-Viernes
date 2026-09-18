@@ -1,64 +1,175 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Alexander Arvelo· Tienda de ropa</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        colors: {
-          papel:  'var(--papel)',
-          carta:  'var(--carta)',
-          tinta:  'var(--tinta)',
-          tenue:  'var(--tenue)',
-          linea:  'var(--linea)',
-          tinte:  'var(--tinte)',
-          coral:  'var(--coral)',
-          salvia: 'var(--salvia)'
-        },
-        fontFamily: {
-          display: ['"Bricolage Grotesque"', 'Georgia', 'sans-serif'],
-          cuerpo:  ['"Instrument Sans"', 'system-ui', 'sans-serif']
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alexander Arvelo · Tienda de ropa</title>
+  
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  
+ 
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            papel:  'var(--papel)',
+            carta:  'var(--carta)',
+            tinta:  'var(--tinta)',
+            tenue:  'var(--tenue)',
+            linea:  'var(--linea)',
+            tinte:  'var(--tinte)',
+            coral:  'var(--coral)',
+            salvia: 'var(--salvia)'
+          },
+          fontFamily: {
+            display: ['"Bricolage Grotesque"', 'Georgia', 'sans-serif'],
+            cuerpo:  ['"Instrument Sans"', 'system-ui', 'sans-serif']
+          }
         }
       }
-    }
-  };
-</script>
+    };
+  </script>
 
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="min-h-screen font-cuerpo antialiased">
 
 <a href="#catalogo" class="sr-only focus:not-sr-only focus:absolute focus:top-3 focus:left-3 focus:z-50 focus:bg-carta focus:px-4 focus:py-2 focus:costura">Ir al catálogo</a>
 
-<header class="sticky top-0 z-30 bg-papel/95 backdrop-blur border-b border-linea">
 
+<header class="sticky top-0 z-30 bg-papel/95 backdrop-blur border-b border-linea">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+    <div class="flex items-center gap-3 sm:gap-5 py-3">
+      <a href="#" class="display text-2xl font-extrabold tracking-tight shrink-0">Alex<span class="text-tinte">.</span></a>
+
+      <form class="flex-1 min-w-0" role="search" onsubmit="return false">
+        <label for="buscador" class="sr-only">Buscar prendas</label>
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-tenue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="buscador" type="search" autocomplete="off" placeholder="Buscar remera, jean, abrigo…"
+                 class="w-full bg-carta border border-linea rounded-full pl-9 pr-4 py-2 text-sm placeholder:text-tenue focus:border-tinte">
+        </div>
+      </form>
+
+      <button id="btnCarrito" type="button" aria-haspopup="dialog" aria-expanded="false"
+              class="relative shrink-0 w-11 h-11 grid place-items-center bg-carta border border-linea rounded-full hover:border-tinta">
+        <span class="sr-only">Abrir carrito</span>
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+          <path d="M4 7h16l-1.4 11.2a2 2 0 0 1-2 1.8H7.4a2 2 0 0 1-2-1.8L4 7Z"/>
+          <path d="M9 7V5.5a3 3 0 0 1 6 0V7"/>
+        </svg>
+        <span id="badge" hidden class="absolute -top-1 -right-1 min-w-[20px] h-5 px-1 grid place-items-center rounded-full bg-tinte text-white text-[11px] font-semibold">0</span>
+      </button>
+    </div>
+
+   
+    <nav aria-label="Categorías" class="pb-3 -mx-1 overflow-x-auto scroll-fino">
+      <ul id="categorias" class="flex gap-2 px-1 min-w-max text-sm"></ul>
+    </nav>
+  </div>
 </header>
 
 <main class="max-w-6xl mx-auto px-4 sm:px-6">
 
 
+  <section class="grid lg:grid-cols-[1.15fr_.85fr] gap-8 items-center py-10 sm:py-14">
+    <div>
+      <h1 class="display text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.02] max-w-[18ch]">
+        Ropa pensada para durar más que la temporada
+      </h1>
+      <p class="mt-5 text-tenue max-w-[52ch] leading-relaxed">
+        Prendas de algodón, lino y lana hechas en talleres chicos. Tocá cualquier prenda para ver la ficha completa antes de sumarla al carrito.
+      </p>
+   
+    </div>
 
+   
+  </section>
+
+
+  <section id="catalogo" aria-labelledby="tituloCatalogo" class="pb-16">
+    <div class="flex items-baseline justify-between gap-4 border-t border-linea pt-6 mb-6">
+      <h2 id="tituloCatalogo" class="display text-2xl font-bold">Catálogo</h2>
+      <p id="resumen" class="text-sm text-tenue" aria-live="polite"></p>
+    </div>
+
+    <div id="cargando" class="py-16 text-center text-tenue text-sm">Trayendo las prendas…</div>
+
+    <div id="grilla" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3"></div>
+
+    <div id="vacio" hidden class="py-16 text-center">
+      <p class="display text-xl font-bold">Sin resultados</p>
+      <p class="text-tenue text-sm mt-2">Ninguna prenda coincide con esa búsqueda.</p>
+      <button type="button" id="limpiarFiltros" class="mt-5 px-5 py-2.5 rounded-full costura text-sm font-semibold hover:border-tinta">Ver todas las prendas</button>
+    </div>
+  </section>
 </main>
 
 <footer class="border-t border-linea">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 flex flex-wrap gap-x-8 gap-y-2 justify-between text-sm text-tenue">
-    <p>Alexander Arvelo · Tienda de ropa</p>
-    
+    <p> Tienda de ropa</p>
+    <p>Cambios sin cargo dentro de los 30 días</p>
   </div>
 </footer>
 
 
+<div id="velo" class="velo oculto fixed inset-0 z-40 bg-black/50" data-cerrar="modal"></div>
+<div id="modal" class="oculto fixed inset-0 z-50 grid place-items-center p-4 pointer-events-none" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+  <article class="pointer-events-auto w-full max-w-2xl bg-carta border border-linea rounded-sm max-h-[90vh] overflow-y-auto scroll-fino">
+    <div class="flex justify-end p-3 sticky top-0 bg-carta">
+      <button type="button" id="cerrarModal" class="w-9 h-9 grid place-items-center rounded-full costura hover:border-tinta" aria-label="Cerrar detalle">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-6 px-6 pb-6">
+      <img id="modalImg" src="" alt="" class="w-full h-64 sm:h-full object-contain bg-papel rounded-sm p-4">
+      <div class="flex flex-col">
+        <p id="modalCat" class="text-xs text-tinte font-semibold"></p>
+        <h3 id="modalTitulo" class="display text-2xl font-bold mt-2 leading-tight"></h3>
+        <p id="modalPrecio" class="display text-3xl font-extrabold mt-4"></p>
+        <p id="modalDesc" class="text-sm text-tenue leading-relaxed mt-4 flex-1"></p>
+        <button type="button" id="agregarModal" class="mt-6 w-full px-5 py-3 rounded-full bg-tinta text-papel font-semibold hover:bg-tinte">Agregar al carrito</button>
+      </div>
+    </div>
+  </article>
+</div>
 
 
+<div id="veloCarrito" class="velo oculto fixed inset-0 z-40 bg-black/50" data-cerrar="carrito"></div>
+<aside id="sidebar" class="panel fuera fixed top-0 right-0 z-50 h-full w-full max-w-md bg-carta border-l border-linea flex flex-col" role="dialog" aria-modal="true" aria-labelledby="tituloCarrito" aria-hidden="true">
+  <div class="flex items-center justify-between px-5 py-4 border-b border-linea">
+    <h2 id="tituloCarrito" class="display text-xl font-bold">Tu carrito</h2>
+    <button type="button" id="cerrarCarrito" class="w-9 h-9 grid place-items-center rounded-full costura hover:border-tinta" aria-label="Cerrar carrito">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+
+  <ul id="listaCarrito" class="flex-1 overflow-y-auto scroll-fino px-5 py-4 space-y-4"></ul>
+
+  <p id="carritoVacio" class="flex-1 grid place-content-center text-center px-8">
+    <span class="display text-xl font-bold block">Todavía no elegiste nada</span>
+    <span class="text-sm text-tenue mt-2 block">Abrí una prenda del catálogo y agregala desde su ficha.</span>
+  </p>
+
+  <div class="border-t border-linea px-5 py-4 space-y-3">
+    <div class="flex items-baseline justify-between">
+      <span class="text-sm text-tenue">Total</span>
+      <span id="total" class="display text-2xl font-extrabold">$0.00</span>
+    </div>
+    <button type="button" id="finalizar" class="w-full px-5 py-3 rounded-full bg-tinta text-papel font-semibold hover:bg-tinte disabled:opacity-40 disabled:pointer-events-none">Finalizar compra</button>
+    <button type="button" id="vaciar" class="w-full px-5 py-2.5 rounded-full costura text-sm font-semibold text-coral hover:border-coral disabled:opacity-40 disabled:pointer-events-none">Vaciar el carrito</button>
+  </div>
+</aside>
 
 
+<div id="avisos" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] w-[min(92vw,26rem)] space-y-2" role="status" aria-live="polite"></div>
 
-<script src="index.js" type="module"></script>
+
+<script src="js/main.js"></script>
 </body>
 </html>
