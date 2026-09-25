@@ -21,6 +21,9 @@
     --salvia: #A3B58F;
   }
 }
+.marca{
+  border: solid 3px #cf2e2e;
+}
 
 :root[data-theme="dark"] {
   --papel: #141513;

@@ -2,7 +2,6 @@
   "use strict";
 
   const API = "https://fakestoreapi.com/products";
-  const CLAVE = "hilo_carrito";
 
   let productos = [];
   let carrito = [];
@@ -124,7 +123,7 @@
     grilla.innerHTML = items
       .map(
         (p) => `
-      <article class="ficha bg-carta border border-linea rounded-sm overflow-hidden flex flex-col">
+      <article class="ficha bg-gray-800 border border-linea rounded-xl overflow-hidden flex flex-col">
         <button type="button" data-id="${p.id}" class="text-left flex flex-col h-full">
           <span class="block bg-papel p-5">
             <img src="${p.image}" alt="${p.title}" loading="lazy" class="w-full h-48 object-contain mix-blend-multiply dark:mix-blend-normal">
