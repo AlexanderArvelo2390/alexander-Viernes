@@ -8,11 +8,27 @@
   let categoria = "todas";
   let busqueda = "";
   let ultimoFoco = null;
+  let quitarTrapModal = null;
+  let quitarTrapCarrito = null;
 
   const $ = (sel) => document.querySelector(sel);
   const grilla = $("#grilla");
   const lista = $("#listaCarrito");
   const precio = (n) => "$" + Number(n).toFixed(2);
+
+  function escapar(str) {
+    return String(str).replace(
+      /[&<>"']/g,
+      (c) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[c],
+    );
+  }
 
   function dibujo(forma, color) {
     const cuerpos = {
@@ -32,9 +48,80 @@
     return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
   }
 
+  // Catálogo que se usa si falla la conexión con la API, para que el
+  // mensaje de "catálogo local" tenga algo real que mostrar.
+  function catalogoLocal() {
+    const items = [
+      [
+        "remera",
+        "#2563eb",
+        "Remera básica algodón",
+        12.99,
+        "Remera de algodón, corte clásico, ideal para el día a día.",
+      ],
+      [
+        "remera",
+        "#111827",
+        "Remera oversize negra",
+        15.5,
+        "Remera oversize de punto grueso, cuello redondo.",
+      ],
+      [
+        "buzo",
+        "#7c3aed",
+        "Buzo canguro violeta",
+        28.0,
+        "Buzo con capucha y bolsillo canguro, friza interior.",
+      ],
+      [
+        "buzo",
+        "#059669",
+        "Buzo verde liso",
+        26.5,
+        "Buzo sin capucha, puños y cintura elastizados.",
+      ],
+      [
+        "campera",
+        "#b45309",
+        "Campera de gamuza",
+        54.9,
+        "Campera corta con cierre frontal, forro interior.",
+      ],
+      [
+        "pantalon",
+        "#1f2937",
+        "Pantalón cargo",
+        32.0,
+        "Pantalón cargo con bolsillos laterales, tiro medio.",
+      ],
+      [
+        "vestido",
+        "#db2777",
+        "Vestido midi",
+        39.9,
+        "Vestido midi de tela liviana, ideal para entretiempo.",
+      ],
+      [
+        "gorra",
+        "#dc2626",
+        "Gorra clásica",
+        9.99,
+        "Gorra de seis paneles, visera curva, cierre ajustable.",
+      ],
+    ];
+    return items.map(([forma, color, title, price, description], i) => ({
+      id: "local-" + (i + 1),
+      title,
+      category: forma,
+      price,
+      description,
+      image: dibujo(forma, color),
+    }));
+  }
+
   function leerCarrito() {
     try {
-      const guardado = JSON.parse(localStorage.getItem(CLAVE));
+      const guardado = JSON.parse(localStorage.getItem("carrito_prendas"));
       return Array.isArray(guardado) ? guardado : [];
     } catch {
       return [];
@@ -42,12 +129,12 @@
   }
   function guardarCarrito() {
     try {
-      localStorage.setItem(CLAVE, JSON.stringify(carrito));
+      localStorage.setItem("carrito_prendas", JSON.stringify(carrito));
     } catch {}
   }
   function borrarAlmacenamiento() {
     try {
-      localStorage.removeItem(CLAVE);
+      localStorage.removeItem("carrito_prendas");
     } catch {}
   }
 
@@ -69,7 +156,7 @@
       if (!r.ok) throw new Error("respuesta " + r.status);
       const datos = await r.json();
       productos = datos.map((p) => ({
-        id: p.id,
+        id: String(p.id),
         title: p.title,
         category: p.category,
         price: p.price,
@@ -77,7 +164,7 @@
         image: p.image,
       }));
     } catch (e) {
-      console.log(productos);
+      productos = catalogoLocal();
       avisar(
         "No se pudo conectar con la API. Se muestra el catálogo local.",
         "error",
@@ -94,10 +181,10 @@
     $("#categorias").innerHTML = cats
       .map(
         (c) => `
-      <li><button type="button" data-cat="${c}"
+      <li><button type="button" data-cat="${escapar(c)}"
         class="px-4 py-1.5 rounded-full border capitalize whitespace-nowrap transition-colors
         ${c === categoria ? "bg-tinta text-papel border-tinta" : "bg-carta border-linea hover:border-tinta"}"
-        aria-pressed="${c === categoria}">${c}</button></li>`,
+        aria-pressed="${c === categoria}">${escapar(c)}</button></li>`,
       )
       .join("");
   }
@@ -119,18 +206,17 @@
     $("#resumen").textContent =
       items.length === 1 ? "1 prenda" : items.length + " prendas";
     $("#vacio").hidden = items.length !== 0;
-    console;
     grilla.innerHTML = items
       .map(
         (p) => `
       <article class="ficha bg-gray-800 border border-linea rounded-xl overflow-hidden flex flex-col">
         <button type="button" data-id="${p.id}" class="text-left flex flex-col h-full">
           <span class="block bg-papel p-5">
-            <img src="${p.image}" alt="${p.title}" loading="lazy" class="w-full h-48 object-contain mix-blend-multiply dark:mix-blend-normal">
+            <img src="${p.image}" alt="${escapar(p.title)}" loading="lazy" class="w-full h-48 object-contain mix-blend-multiply dark:mix-blend-normal">
           </span>
           <span class="p-5 flex flex-col gap-2 flex-1">
-            <span class="text-xs text-tinte font-semibold capitalize">${p.category}</span>
-            <span class="display font-bold leading-snug line-clamp-2">${p.title}</span>
+            <span class="text-xs text-tinte font-semibold capitalize">${escapar(p.category)}</span>
+            <span class="display font-bold leading-snug line-clamp-2">${escapar(p.title)}</span>
             <span class="display text-xl font-extrabold mt-auto pt-2">${precio(p.price)}</span>
             <span class="text-xs text-tenue">Ver ficha de la prenda</span>
           </span>
@@ -138,6 +224,27 @@
       </article>`,
       )
       .join("");
+  }
+
+  function trapFocus(contenedor) {
+    const focosables = contenedor.querySelectorAll(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (!focosables.length) return () => {};
+    const primero = focosables[0];
+    const ultimo = focosables[focosables.length - 1];
+    function manejar(e) {
+      if (e.key !== "Tab") return;
+      if (e.shiftKey && document.activeElement === primero) {
+        e.preventDefault();
+        ultimo.focus();
+      } else if (!e.shiftKey && document.activeElement === ultimo) {
+        e.preventDefault();
+        primero.focus();
+      }
+    }
+    contenedor.addEventListener("keydown", manejar);
+    return () => contenedor.removeEventListener("keydown", manejar);
   }
 
   function abrirModal(id) {
@@ -155,10 +262,15 @@
     $("#velo").classList.remove("oculto");
     document.body.style.overflow = "hidden";
     $("#cerrarModal").focus();
+    quitarTrapModal = trapFocus($("#modal"));
   }
   function cerrarModal() {
     $("#modal").classList.add("oculto");
     $("#velo").classList.add("oculto");
+    if (quitarTrapModal) {
+      quitarTrapModal();
+      quitarTrapModal = null;
+    }
     if (!estaAbiertoCarrito()) document.body.style.overflow = "";
     if (ultimoFoco) ultimoFoco.focus();
   }
@@ -226,21 +338,21 @@
       <li class="flex gap-3 pb-4 border-b border-linea last:border-0">
         <img src="${i.image}" alt="" class="w-20 h-24 object-contain bg-papel rounded-sm p-1 shrink-0">
         <div class="flex-1 min-w-0">
-          <p class="display font-bold text-sm leading-snug line-clamp-2">${i.title}</p>
+          <p class="display font-bold text-sm leading-snug line-clamp-2">${escapar(i.title)}</p>
           <p class="text-xs text-tenue mt-0.5">${precio(i.price)} por unidad</p>
           <div class="flex items-center justify-between gap-2 mt-3">
             <div class="flex items-center border border-linea rounded-full">
               <button type="button" data-menos="${i.id}" ${i.cantidad <= 1 ? "disabled" : ""}
                 class="w-8 h-8 grid place-items-center rounded-full disabled:opacity-30 disabled:pointer-events-none hover:text-tinte"
-                aria-label="Quitar una unidad de ${i.title}">−</button>
+                aria-label="Quitar una unidad de ${escapar(i.title)}">−</button>
               <span class="w-8 text-center text-sm font-semibold" aria-label="Cantidad">${i.cantidad}</span>
               <button type="button" data-mas="${i.id}"
                 class="w-8 h-8 grid place-items-center rounded-full hover:text-tinte"
-                aria-label="Sumar una unidad de ${i.title}">+</button>
+                aria-label="Sumar una unidad de ${escapar(i.title)}">+</button>
             </div>
             <span class="display font-extrabold">${precio(i.price * i.cantidad)}</span>
             <button type="button" data-borrar="${i.id}" class="text-coral hover:underline text-xs font-semibold"
-              aria-label="Eliminar ${i.title} del carrito">Eliminar</button>
+              aria-label="Eliminar ${escapar(i.title)} del carrito">Eliminar</button>
           </div>
         </div>
       </li>`,
@@ -249,6 +361,7 @@
   }
 
   const estaAbiertoCarrito = () => !$("#sidebar").classList.contains("fuera");
+  const estaAbiertoModal = () => !$("#modal").classList.contains("oculto");
 
   function abrirCarrito() {
     ultimoFoco = document.activeElement;
@@ -258,23 +371,28 @@
     $("#btnCarrito").setAttribute("aria-expanded", "true");
     document.body.style.overflow = "hidden";
     $("#cerrarCarrito").focus();
+    quitarTrapCarrito = trapFocus($("#sidebar"));
   }
   function cerrarCarrito() {
     $("#sidebar").classList.add("fuera");
     $("#sidebar").setAttribute("aria-hidden", "true");
     $("#veloCarrito").classList.add("oculto");
     $("#btnCarrito").setAttribute("aria-expanded", "false");
-    document.body.style.overflow = "";
+    if (quitarTrapCarrito) {
+      quitarTrapCarrito();
+      quitarTrapCarrito = null;
+    }
+    if (!estaAbiertoModal()) document.body.style.overflow = "";
     $("#btnCarrito").focus();
   }
 
   grilla.addEventListener("click", (e) => {
     const btn = e.target.closest("button[data-id]");
-    if (btn) abrirModal(Number(btn.dataset.id));
+    if (btn) abrirModal(btn.dataset.id);
   });
 
   $("#agregarModal").addEventListener("click", (e) => {
-    agregar(Number(e.currentTarget.dataset.id));
+    agregar(e.currentTarget.dataset.id);
     cerrarModal();
   });
 
@@ -288,9 +406,9 @@
     const menos = e.target.closest("[data-menos]");
     const mas = e.target.closest("[data-mas]");
     const borrar = e.target.closest("[data-borrar]");
-    if (menos) cambiarCantidad(Number(menos.dataset.menos), -1);
-    if (mas) cambiarCantidad(Number(mas.dataset.mas), 1);
-    if (borrar) eliminar(Number(borrar.dataset.borrar));
+    if (menos) cambiarCantidad(menos.dataset.menos, -1);
+    if (mas) cambiarCantidad(mas.dataset.mas, 1);
+    if (borrar) eliminar(borrar.dataset.borrar);
   });
 
   $("#finalizar").addEventListener("click", () => {
@@ -336,9 +454,14 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (!$("#modal").classList.contains("oculto")) cerrarModal();
+    if (estaAbiertoModal()) cerrarModal();
     else if (estaAbiertoCarrito()) cerrarCarrito();
   });
+
+  const avisos = $("#avisos");
+  if (avisos && !avisos.hasAttribute("aria-live")) {
+    avisos.setAttribute("aria-live", "polite");
+  }
 
   carrito = leerCarrito();
   pintarCarrito();
